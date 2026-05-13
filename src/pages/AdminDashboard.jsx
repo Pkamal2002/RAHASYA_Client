@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import API_URL_BASE from '../utils/apiConfig';
 
 const AdminDashboard = () => {
-  const { user: currentUser } = useSelector((state) => state.auth);
+  const { user: currentUser, token } = useSelector((state) => state.auth);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,7 +15,6 @@ const AdminDashboard = () => {
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await axios.get(`${API_URL_BASE}/admin/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
