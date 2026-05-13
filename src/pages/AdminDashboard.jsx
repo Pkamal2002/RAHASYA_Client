@@ -54,6 +54,11 @@ const AdminDashboard = () => {
 
   const updateUserRole = async (userId, newRole) => {
     try {
+      if (!token) {
+        toast.error('Session expired. Please login again.');
+        return;
+      }
+      
       toast.promise(
         axios.put(`${API_URL_BASE}/admin/users/${userId}`, 
           { role: newRole },
