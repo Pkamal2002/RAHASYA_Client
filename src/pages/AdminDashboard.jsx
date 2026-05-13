@@ -33,6 +33,11 @@ const AdminDashboard = () => {
 
   const updateUserStatus = async (userId, newStatus) => {
     try {
+      if (!token) {
+        toast.error('Session expired. Please login again.');
+        return;
+      }
+
       toast.promise(
         axios.put(`${API_URL_BASE}/admin/users/${userId}`, 
           { status: newStatus },
@@ -44,7 +49,10 @@ const AdminDashboard = () => {
             fetchUsers();
             return 'User status updated!';
           },
-          error: 'Failed to update user status'
+          error: (err) => {
+            const msg = err.response?.data?.message || 'Failed to update user status';
+            return `Error: ${msg}`;
+          }
         }
       );
     } catch (error) {
