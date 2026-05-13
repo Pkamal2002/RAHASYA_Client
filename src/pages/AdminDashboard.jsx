@@ -166,8 +166,10 @@ const AdminDashboard = () => {
                         onChange={(e) => updateUserRole(user._id, e.target.value)}
                         className="bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-cyber-blue hover:bg-opacity-10 transition-all cursor-pointer"
                       >
-                        <option value="User">User</option>
                         <option value="Admin">Admin</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Team Member">Team Member</option>
+                        <option value="User">User</option>
                       </select>
                     ) : (
                       <span className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-cyber-purple bg-opacity-10 text-cyber-purple border border-cyber-purple border-opacity-20 text-[10px] font-bold uppercase">
@@ -271,8 +273,10 @@ const AdminDashboard = () => {
                       onChange={(e) => updateUserRole(user._id, e.target.value)}
                       className="bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg px-2 py-1 text-xs text-gray-300 w-full"
                     >
-                      <option value="User">User</option>
                       <option value="Admin">Admin</option>
+                      <option value="Manager">Manager</option>
+                      <option value="Team Member">Team Member</option>
+                      <option value="User">User</option>
                     </select>
                   ) : (
                     <div className="text-xs text-cyber-purple font-bold flex items-center gap-1.5 uppercase">

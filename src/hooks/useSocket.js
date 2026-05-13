@@ -39,6 +39,13 @@ const useSocket = (user) => {
         }
       });
 
+      socket.on('user_role_update', (data) => {
+        if (data.userId === user._id) {
+          // Force a reload to refresh the user role in the UI and Redux
+          window.location.reload();
+        }
+      });
+
       return () => socket.disconnect();
     }
   }, [user, dispatch]);
