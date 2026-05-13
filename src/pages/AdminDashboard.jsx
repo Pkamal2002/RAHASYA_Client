@@ -65,7 +65,10 @@ const AdminDashboard = () => {
             fetchUsers();
             return 'User role updated!';
           },
-          error: (err) => err.response?.data?.message || 'Failed to update user role'
+          error: (err) => {
+            const msg = err.response?.data?.message || 'Failed to update user role';
+            return `Error: ${msg}`;
+          }
         }
       );
     } catch (error) {
