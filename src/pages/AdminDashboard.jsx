@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { Users, Shield, UserCheck, UserX, UserPlus, Search, Filter } from 'lucide-react';
+import { Users, Shield, UserCheck, UserX, UserPlus, Search, Filter, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API_URL_BASE from '../utils/apiConfig';
 
@@ -31,19 +31,13 @@ const AdminDashboard = () => {
   }, []);
 
   const updateUserStatus = async (userId, newStatus) => {
-    console.log(`[CLICK] Attempting to update status for ${userId} to ${newStatus}`);
-    console.log(`[DEBUG] Current Token: ${token ? 'Present' : 'MISSING'}`);
-    console.log(`[DEBUG] API_URL_BASE: ${API_URL_BASE}`);
-    
     try {
       if (!token) {
-        console.error('[AUTH ERROR] No token found in Redux state');
         toast.error('Session expired. Please login again.');
         return;
       }
 
       const targetUrl = `${API_URL_BASE}/management/users/${userId}`;
-      console.log(`[NETWORK] Sending PUT to: ${targetUrl}`);
 
       toast.promise(
         axios.put(targetUrl, 
@@ -57,32 +51,24 @@ const AdminDashboard = () => {
             return 'User status updated!';
           },
           error: (err) => {
-            console.error('[ADMIN UPDATE STATUS ERROR]:', err);
             const msg = err.response?.data?.message || 'Failed to update user status';
             return `Error: ${msg}`;
           }
         }
       );
     } catch (error) {
-      console.error('[CRITICAL UI ERROR] updateUserStatus failed:', error);
       toast.error('Failed to update user status');
     }
   };
 
   const updateUserRole = async (userId, newRole) => {
-    console.log(`[CLICK] Attempting to update role for ${userId} to ${newRole}`);
-    console.log(`[DEBUG] Current Token: ${token ? 'Present' : 'MISSING'}`);
-    console.log(`[DEBUG] API_URL_BASE: ${API_URL_BASE}`);
-
     try {
       if (!token) {
-        console.error('[AUTH ERROR] No token found in Redux state');
         toast.error('Session expired. Please login again.');
         return;
       }
       
       const targetUrl = `${API_URL_BASE}/management/users/${userId}`;
-      console.log(`[NETWORK] Sending PUT to: ${targetUrl}`);
 
       toast.promise(
         axios.put(targetUrl, 
@@ -96,15 +82,43 @@ const AdminDashboard = () => {
             return 'User role updated!';
           },
           error: (err) => {
-            console.error('[ADMIN UPDATE ROLE ERROR]:', err);
             const msg = err.response?.data?.message || 'Failed to update user role';
             return `Error: ${msg}`;
           }
         }
       );
     } catch (error) {
-      console.error('[CRITICAL UI ERROR] updateUserRole failed:', error);
       toast.error('Failed to update user role');
+    }
+  };
+
+  const deleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+
+    try {
+      if (!token) {
+        toast.error('Session expired. Please login again.');
+        return;
+      }
+
+      toast.promise(
+        axios.delete(`${API_URL_BASE}/management/users/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        {
+          loading: 'Deleting user...',
+          success: () => {
+            fetchUsers();
+            return 'User deleted successfully';
+          },
+          error: (err) => {
+            const msg = err.response?.data?.message || 'Failed to delete user';
+            return `Error: ${msg}`;
+          }
+        }
+      );
+    } catch (error) {
+      toast.error('Failed to delete user');
     }
   };
 
@@ -255,6 +269,16 @@ const AdminDashboard = () => {
                           title="Deactivate"
                         >
                           <UserX className="w-4 h-4" />
+                        </button>
+                      )}
+                      
+                      {currentUser?.role === 'Super Admin' && user.role !== 'Super Admin' && (
+                        <button 
+                          onClick={() => deleteUser(user._id)}
+                          className="p-2 rounded-xl hover:bg-red-600 hover:bg-opacity-10 text-red-600 transition-all border border-transparent hover:border-red-600/20"
+                          title="Delete User"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       )}
                     </div>

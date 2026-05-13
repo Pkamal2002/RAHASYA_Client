@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { History, Search, Filter, Clock, User, Globe, AlertCircle } from 'lucide-react';
+import { History, Search, Filter, Clock, User, Globe, AlertCircle, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 import API_URL_BASE from '../utils/apiConfig';
 
 const AuditLogs = () => {
+  const { user: currentUser, token } = useSelector((state) => state.auth);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   const fetchLogs = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL_BASE}/admin/logs`, {
+      const response = await axios.get(`${API_URL_BASE}/management/logs`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLogs(response.data.data);
@@ -21,6 +23,31 @@ const AuditLogs = () => {
     } catch (error) {
       console.error('Error fetching logs:', error);
       setLoading(false);
+    }
+  };
+
+  const clearLogs = async () => {
+    if (!window.confirm('Are you sure you want to permanently clear all audit logs? This action is recorded.')) return;
+
+    try {
+      toast.promise(
+        axios.delete(`${API_URL_BASE}/management/logs`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        {
+          loading: 'Clearing logs...',
+          success: () => {
+            fetchLogs();
+            return 'Audit logs cleared successfully';
+          },
+          error: (err) => {
+            const msg = err.response?.data?.message || 'Failed to clear logs';
+            return `Error: ${msg}`;
+          }
+        }
+      );
+    } catch (error) {
+      toast.error('Failed to clear logs');
     }
   };
 
@@ -44,15 +71,28 @@ const AuditLogs = () => {
           <p className="text-gray-400 text-sm">Real-time enterprise activity monitoring</p>
         </div>
 
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-          <input 
-            type="text" 
-            placeholder="Search activity..." 
-            className="cyber-input pl-9 h-10 w-full"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="relative flex-1 md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input 
+              type="text" 
+              placeholder="Search activity..." 
+              className="cyber-input pl-9 h-10 w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          {currentUser?.role === 'Super Admin' && (
+            <button 
+              onClick={clearLogs}
+              className="flex items-center gap-2 px-4 h-10 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all font-bold text-xs uppercase tracking-wider"
+              title="Clear All Logs"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Clear All</span>
+            </button>
+          )}
         </div>
       </div>
 
