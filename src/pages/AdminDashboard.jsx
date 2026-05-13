@@ -32,14 +32,22 @@ const AdminDashboard = () => {
   }, []);
 
   const updateUserStatus = async (userId, newStatus) => {
+    console.log(`[CLICK] Attempting to update status for ${userId} to ${newStatus}`);
+    console.log(`[DEBUG] Current Token: ${token ? 'Present' : 'MISSING'}`);
+    console.log(`[DEBUG] API_URL_BASE: ${API_URL_BASE}`);
+    
     try {
       if (!token) {
+        console.error('[AUTH ERROR] No token found in Redux state');
         toast.error('Session expired. Please login again.');
         return;
       }
 
+      const targetUrl = `${API_URL_BASE}/management/users/${userId}`;
+      console.log(`[NETWORK] Sending PUT to: ${targetUrl}`);
+
       toast.promise(
-        axios.put(`${API_URL_BASE}/admin/users/${userId}`, 
+        axios.put(targetUrl, 
           { status: newStatus },
           { headers: { Authorization: `Bearer ${token}` } }
         ),
@@ -50,25 +58,35 @@ const AdminDashboard = () => {
             return 'User status updated!';
           },
           error: (err) => {
+            console.error('[ADMIN UPDATE STATUS ERROR]:', err);
             const msg = err.response?.data?.message || 'Failed to update user status';
             return `Error: ${msg}`;
           }
         }
       );
     } catch (error) {
+      console.error('[CRITICAL UI ERROR] updateUserStatus failed:', error);
       toast.error('Failed to update user status');
     }
   };
 
   const updateUserRole = async (userId, newRole) => {
+    console.log(`[CLICK] Attempting to update role for ${userId} to ${newRole}`);
+    console.log(`[DEBUG] Current Token: ${token ? 'Present' : 'MISSING'}`);
+    console.log(`[DEBUG] API_URL_BASE: ${API_URL_BASE}`);
+
     try {
       if (!token) {
+        console.error('[AUTH ERROR] No token found in Redux state');
         toast.error('Session expired. Please login again.');
         return;
       }
       
+      const targetUrl = `${API_URL_BASE}/management/users/${userId}`;
+      console.log(`[NETWORK] Sending PUT to: ${targetUrl}`);
+
       toast.promise(
-        axios.put(`${API_URL_BASE}/admin/users/${userId}`, 
+        axios.put(targetUrl, 
           { role: newRole },
           { headers: { Authorization: `Bearer ${token}` } }
         ),
@@ -79,12 +97,14 @@ const AdminDashboard = () => {
             return 'User role updated!';
           },
           error: (err) => {
+            console.error('[ADMIN UPDATE ROLE ERROR]:', err);
             const msg = err.response?.data?.message || 'Failed to update user role';
             return `Error: ${msg}`;
           }
         }
       );
     } catch (error) {
+      console.error('[CRITICAL UI ERROR] updateUserRole failed:', error);
       toast.error('Failed to update user role');
     }
   };
